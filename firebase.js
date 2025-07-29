@@ -1,9 +1,11 @@
-// authGuard.js
-import { auth, db } from './firebase.js';
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+// firebase.js
 
-// Firebase config
+// Import Firebase functions
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Your Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyAXOg97n9PWy1UnlxFxz0LFGsvsqBirx1s",
   authDomain: "many-waters-prayer-journal.firebaseapp.com",
@@ -14,13 +16,9 @@ const firebaseConfig = {
   measurementId: "G-H34BZTDQ93"
 };
 
-// Init Firebase
+// Initialize Firebase app
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
-// Auth Guard
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
+// Export Firebase services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
