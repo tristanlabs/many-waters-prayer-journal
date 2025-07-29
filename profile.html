@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Profile – Many Waters Prayer Journal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+  <div class="container mt-5">
+    <h2 class="text-center mb-4">Your Profile</h2>
+
+    <div class="card bg-secondary mb-4">
+      <div class="card-body text-center">
+        <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile" class="rounded-circle mb-3" width="100" height="100">
+        <h5 class="card-title">Account Info</h5>
+        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+        <div class="mb-3">
+          <label for="displayName" class="form-label">Display Name</label>
+          <input type="text" class="form-control text-center" id="displayName" placeholder="Enter name">
+          <button id="saveDisplayName" class="btn btn-info mt-2">Save</button>
+        </div>
+        <button id="logoutBtn" class="btn btn-outline-light">Logout</button>
+        <button id="deleteAccountBtn" class="btn btn-outline-danger mt-2">Delete Account</button>
+      </div>
+    </div>
+
+    <div class="card bg-secondary mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Your Prayers</h5>
+        <ul id="userPrayers" class="list-group list-group-flush bg-dark"></ul>
+      </div>
+    </div>
+
+    <div class="card bg-secondary mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Your Testimonies</h5>
+        <ul id="userTestimonies" class="list-group list-group-flush bg-dark"></ul>
+      </div>
+    </div>
+
+    <p class="text-center mt-4"><a href="home.html" class="text-info">← Back to Home</a></p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAXOg97n9PWy1UnlxFxz0LFGsvsqBirx1s",
+      authDomain: "many-waters-prayer-journal.firebaseapp.com",
+      projectId: "many-waters-prayer-journal",
+      storageBucket: "many-waters-prayer-journal.appspot.com",
+      messagingSenderId: "170476444962",
+      appId: "1:170476444962:web:e2c1a5c8cec8a75fef997b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const userEmailSpan = document.getElementById("userEmail");
+    const prayersList = document.getElementById("userPrayers");
+    const testimoniesList = document.getElementById("userTestimonies");
+    const displayNameInput = document.getElementById("displayName");
+    const profilePic = document.getElementById("profilePic");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        userEmailSpan.textContent = user.email;
+        displayNameInput.value = user.displayName || "";
+
+        if (user.photoURL) {
+          profilePic.src = user.photoURL;
+        }
+
+        const prayersQuery = query(collection(db, "prayers"), where("uid", "==", user.uid));
+        const prayerDocs = await getDocs(prayersQuery);
+        prayerDocs.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item bg-dark text-light";
+          li.textContent = data.title || "Untitled Prayer";
+          prayersList.appendChild(li);
+        });
+
+        const testimoniesQuery = query(collection(db, "testimonies"), where("uid", "==", user.uid));
+        const testimonyDocs = await getDocs(testimoniesQuery);
+        testimonyDocs.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.className = "list-group-item bg-dark text-light";
+          li.textContent = data.text || "Untitled Testimony";
+          testimoniesList.appendChild(li);
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    document.getElementById("saveDisplayName").addEventListener("click", async () => {
+      const user = auth.currentUser;
+      const name = displayNameInput.value.trim();
+      if (user && name) {
+        try {
+          await updateProfile(user, { displayName: name });
+          alert("Display name updated!");
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "index.html";
+      } catch (error) {
+        alert("Logout failed: " + error.message);
+      }
+    });
+
+    document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+      const confirmDelete = confirm("Are you sure you want to delete your account? This cannot be undone.");
+      if (confirmDelete) {
+        try {
+          const user = auth.currentUser;
+          await deleteUser(user);
+          alert("Account deleted.");
+          window.location.href = "index.html";
+        } catch (error) {
+          alert("Delete failed: " + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

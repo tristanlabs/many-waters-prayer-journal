@@ -1,0 +1,9 @@
+.card {
+  background-color: #1f1f1f;
+  border: 1px solid #444;
+  color: #fff;
+}
+.card-answered {
+  border-left: 5px solid #28a745;
+  opacity: 0.9;
+}
