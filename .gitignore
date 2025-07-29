@@ -1,0 +1,6 @@
+# Ignore node modules and VSCode settings
+node_modules/
+.vscode/
+.env
+.DS_Store
+*.log
