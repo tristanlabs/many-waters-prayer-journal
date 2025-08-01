@@ -37,24 +37,36 @@
       <a href="login.html" class="btn btn-primary btn-lg mt-3">Login to Join the Prayer Wall</a>
     </div>
 
-    <div class="row justify-content-center mt-5">
-      <div class="col-md-5 stat-box text-center">
-        <h2 id="warriorCount">🟢 Prayer Warriors Online: ...</h2>
-      </div>
-      <div class="col-md-5 stat-box text-center">
-        <h2 id="answeredCount">✅ Prayers Answered: ...</h2>
-      </div>
+  <div class="row justify-content-center mt-5 gy-4 gx-3">
+  <div class="col-12 col-md-5 mb-3">
+    <div class="stat-box text-center">
+      <h2 id="warriorCount">🟢 Prayer Warriors Online: ...</h2>
     </div>
   </div>
+  <div class="col-12 col-md-5 mb-3">
+    <div class="stat-box text-center">
+      <h2 id="answeredCount">✅ Prayers Answered: ...</h2>
+    </div>
+  </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAXOg97n9PWy1UnlxFxz0LFGsvsqBirx1s",
@@ -70,39 +82,54 @@
     const db = getFirestore(app);
     const auth = getAuth();
 
-    async function updateCounts() {
-      const prayersSnapshot = await getDocs(collection(db, "prayers"));
-      let answered = 0;
-      prayersSnapshot.forEach(doc => {
-        const data = doc.data();
-        if (data.answered === true) answered++;
-      });
-      document.getElementById("answeredCount").textContent = `✅ Prayers Answered: ${answered}`;
-    }
+async function updateCounts() {
+  try {
+    const prayersSnapshot = await getDocs(collection(db, "prayers"));
+    let answered = 0;
 
-    let onlineCount = 0;
-    const presenceMap = new Map();
-
-    function updateWarriors() {
-      onlineCount = 0;
-      presenceMap.forEach(status => {
-        if (status === true) onlineCount++;
-      });
-      document.getElementById("warriorCount").textContent = `🟢 Prayer Warriors Online: ${onlineCount}`;
-    }
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        presenceMap.set(user.uid, true);
-        updateWarriors();
-        window.addEventListener("beforeunload", () => {
-          presenceMap.set(user.uid, false);
-          updateWarriors();
-        });
-      }
+    prayersSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.answered === true) answered++;
     });
 
-    updateCounts();
+    document.getElementById("answeredCount").textContent =
+      `✅ Prayers Answered: ${answered}`;
+  } catch (error) {
+    console.error("Error counting answered prayers:", error);
+    document.getElementById("answeredCount").textContent =
+      "❌ Error loading count";
+  }
+}
+
+
+function updateWarriorCount() {
+  const q = collection(db, "presence");
+  onSnapshot(q, (snapshot) => {
+    let onlineCount = 0;
+    snapshot.forEach(doc => {
+      if (doc.data().online === true) {
+        onlineCount++;
+      }
+    });
+    document.getElementById("warriorCount").textContent = `🟢 Prayer Warriors Online: ${onlineCount}`;
+  });
+}
+
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    const presenceRef = doc(db, "presence", user.uid);
+    await setDoc(presenceRef, { online: true }, { merge: true });
+
+    window.addEventListener("beforeunload", async () => {
+      await setDoc(presenceRef, { online: false }, { merge: true });
+    });
+  }
+});
+
+updateWarriorCount();
+
+
+updateCounts();
   </script>
 </body>
 </html>

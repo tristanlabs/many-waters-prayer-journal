@@ -1,12 +1,21 @@
 // public.js (Phase 2: Public Prayer Wall)
 
 import { db } from './firebase.js';
+// Firestore imports (v9 modular)
 import {
   collection,
-  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  doc,
   updateDoc,
-  doc
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Auth import
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
 
 const publicPrayerList = document.getElementById("publicPrayerList");
 
