@@ -14,7 +14,8 @@
       <div class="card-body text-center">
         <img id="profilePic" src="https://via.placeholder.com/100" alt="Profile" class="rounded-circle mb-3" width="100" height="100">
         <h5 class="card-title">Account Info</h5>
-        <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
+          <p><strong>Name:</strong> <span id="userDisplay">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
         <div class="mb-3">
           <label for="displayName" class="form-label">Display Name</label>
           <input type="text" class="form-control text-center" id="displayName" placeholder="Enter name">
@@ -74,6 +75,7 @@
       if (user) {
         userEmailSpan.textContent = user.email;
         displayNameInput.value = user.displayName || "";
+        document.getElementById("userDisplay").textContent = user.displayName || "Anonymous";
 
         if (user.photoURL) {
           profilePic.src = user.photoURL;
@@ -109,6 +111,7 @@
       if (user && name) {
         try {
           await updateProfile(user, { displayName: name });
+          document.getElementById("userDisplay").textContent = name;
           alert("Display name updated!");
         } catch (error) {
           alert("Error: " + error.message);
