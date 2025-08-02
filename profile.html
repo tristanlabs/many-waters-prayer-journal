@@ -43,27 +43,11 @@
     <p class="text-center mt-4"><a href="home.html" class="text-info">← Back to Home</a></p>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { auth, db } from './firebase.js';
+    import { onAuthStateChanged, signOut, updateProfile, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAXOg97n9PWy1UnlxFxz0LFGsvsqBirx1s",
-      authDomain: "many-waters-prayer-journal.firebaseapp.com",
-      projectId: "many-waters-prayer-journal",
-      storageBucket: "many-waters-prayer-journal.appspot.com",
-      messagingSenderId: "170476444962",
-      appId: "1:170476444962:web:e2c1a5c8cec8a75fef997b"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
 
     const userEmailSpan = document.getElementById("userEmail");
     const prayersList = document.getElementById("userPrayers");
@@ -81,15 +65,22 @@
           profilePic.src = user.photoURL;
         }
 
-        const prayersQuery = query(collection(db, "prayers"), where("uid", "==", user.uid));
-        const prayerDocs = await getDocs(prayersQuery);
-        prayerDocs.forEach(doc => {
-          const data = doc.data();
-          const li = document.createElement("li");
-          li.className = "list-group-item bg-dark text-light";
-          li.textContent = data.title || "Untitled Prayer";
-          prayersList.appendChild(li);
-        });
+      const privateQuery = query(collection(db, "prayers"), where("uid", "==", user.uid));
+      const publicQuery = query(collection(db, "public_prayers"), where("uid", "==", user.uid));
+
+      const [privateSnap, publicSnap] = await Promise.all([
+      getDocs(privateQuery),
+      getDocs(publicQuery)
+      ]);
+
+[...privateSnap.docs, ...publicSnap.docs].forEach(doc => {
+  const data = doc.data();
+  const li = document.createElement("li");
+  li.className = "list-group-item bg-dark text-light";
+  li.textContent = `${data.title || "Untitled Prayer"} (${data.public ? "🌍 Public" : "🔒 Private"})`;
+  prayersList.appendChild(li);
+});
+
 
         const testimoniesQuery = query(collection(db, "testimonies"), where("uid", "==", user.uid));
         const testimonyDocs = await getDocs(testimoniesQuery);

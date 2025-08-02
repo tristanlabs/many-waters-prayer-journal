@@ -7,7 +7,7 @@ import {
   doc,
   setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
+import { updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 // Form submit listener
 const signupForm = document.getElementById('signupForm');
@@ -21,6 +21,10 @@ signupForm.addEventListener('submit', async (e) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+    await updateProfile(user, {
+  displayName: displayName
+});
+
 
     // Create Firestore user document
     await setDoc(doc(db, "users", user.uid), {

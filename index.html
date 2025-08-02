@@ -51,11 +51,6 @@
 </div>
 
   </div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
@@ -84,12 +79,12 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 
 async function updateCounts() {
   try {
-    const prayersSnapshot = await getDocs(collection(db, "prayers"));
+    const publicSnap = await getDocs(collection(db, "public_prayers"));
+
     let answered = 0;
 
-    prayersSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.answered === true) answered++;
+    publicSnap.forEach(doc => {
+      if (doc.data().answered === true) answered++;
     });
 
     document.getElementById("answeredCount").textContent =
@@ -100,6 +95,8 @@ async function updateCounts() {
       "❌ Error loading count";
   }
 }
+
+
 
 
 function updateWarriorCount() {
