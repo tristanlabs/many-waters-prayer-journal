@@ -9,11 +9,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-dark text-light">
+    <!-- Placeholder for Navbar -->
+  <div id="navbarContainer"></div>
   <div class="container py-5">
-    <!-- Logout -->
-    <div class="text-end mb-3">
-      <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
-    </div>
   <!-- ✅ Add this navigation -->
 <div class="text-center mb-4">
   <a href="public.html" class="btn btn-outline-info btn-sm mx-1">🧱 Public Wall</a>
@@ -94,6 +92,17 @@
   <h3 class="text-center">🕊 Shared Testimonies</h3>
   <div id="testimonyList" class="mt-3"></div>
 </div>
+<script>
+  // Load navbar only if not on dashboard page
+  if (!window.location.pathname.includes("dashboard")) {
+    fetch("components/navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbarContainer").innerHTML = data;
+      });
+  }
+</script>
+
 
 <script type="module" src="authGuard.js"></script>
 <!-- Inside <body> tag, near the end -->

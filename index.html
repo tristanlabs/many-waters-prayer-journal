@@ -29,13 +29,30 @@
   </style>
 </head>
 <body>
+  <!-- Placeholder for Navbar -->
+  <div id="navbarContainer"></div>
   <div class="container py-5">
     <div class="jumbotron">
-      <img src="images/C0011EC9-FCAA-4A70-A8A8-192886495BD0.jpeg" alt="Many Waters Logo" />
+      <!-- <img src="images/C0011EC9-FCAA-4A70-A8A8-192886495BD0.jpeg" alt="Many Waters Logo" /> -->
       <h1 class="display-5">Many Waters Prayer Journal</h1>
+      <p class="mt-2 fs-5 fst-italic text-light">Built for warriors. Made for healing.</p>
       <p class="lead">He sent from above, he took me, he drew me out of many waters. <br><strong>Psalm 18:16 (KJV)</strong></p>
       <a href="login.html" class="btn btn-primary btn-lg mt-3">Login to Join the Prayer Wall</a>
     </div>
+    <div class="row justify-content-center mt-5">
+  <div class="col-md-10 text-center">
+    <h3 class="mb-3">Built for warriors. Made for healing.</h3>
+    <p class="lead">
+      This isn’t just a prayer wall. This is a place of restoration and hope.
+      Many Waters Prayer Journal was created for those walking through pain, loss,
+      and spiritual battles—especially fathers and families healing from silence and separation.
+    </p>
+    <p>
+      Track your prayers, see God's answers unfold, and join a growing community of prayer warriors ready to stand in the gap.
+    </p>
+    <a href="about.html" class="btn btn-outline-light btn-sm mt-2">Learn More</a>
+  </div>
+</div>
 
   <div class="row justify-content-center mt-5 gy-4 gx-3">
   <div class="col-12 col-md-5 mb-3">
@@ -96,9 +113,6 @@ async function updateCounts() {
   }
 }
 
-
-
-
 function updateWarriorCount() {
   const q = collection(db, "presence");
   onSnapshot(q, (snapshot) => {
@@ -125,8 +139,31 @@ onAuthStateChanged(auth, async user => {
 
 updateWarriorCount();
 
-
 updateCounts();
-  </script>
+</script>
+<script>
+  if (!window.location.pathname.includes("dashboard")) {
+    fetch("components/navbar.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("navbarContainer").innerHTML = data;
+
+        // Bootstrap re-init for dynamically inserted navbar
+        // const navbarToggle = document.querySelector('.navbar-toggler');
+        // if (navbarToggle) {
+        //   navbarToggle.addEventListener('click', () => {
+        //     const targetId = navbarToggle.getAttribute('data-bs-target');
+        //     const target = document.querySelector(targetId);
+        //     if (target) {
+        //       const bsCollapse = new bootstrap.Collapse(target, {
+        //         toggle: true
+        //       });
+        //     }
+        //   });
+        // }
+      });
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
 </html>
